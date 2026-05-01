@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import emojiRules from "./data/emojiRules.json";
 import { evaluateEmojiExpression } from "./lib/emojiEvaluator";
 import { evaluateNumericExpression, formatNumber, wrapExpression } from "./lib/numericEvaluator";
@@ -66,6 +66,8 @@ function App() {
   const [history, setHistory] = useState([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [pulseKey, setPulseKey] = useState(0);
+  const [animatedKey, setAnimatedKey] = useState("");
+  const animationTimeoutRef = useRef(null);
 
   const displayPlaceholder = mode === "calculator" ? "2*(3+4)" : "🥸 + 🐶";
   const modeLabel = mode === "calculator" ? "Calculator" : "Emoji Math";
@@ -82,6 +84,26 @@ function App() {
     }
 
     setInput((current) => `${current}${value}`);
+  }
+
+  function triggerKeyAnimation(keyId) {
+    window.clearTimeout(animationTimeoutRef.current);
+    setAnimatedKey("");
+
+    requestAnimationFrame(() => {
+      setAnimatedKey(keyId);
+      animationTimeoutRef.current = window.setTimeout(() => setAnimatedKey(""), 520);
+    });
+  }
+
+  function pressKey(keyId, action) {
+    triggerKeyAnimation(keyId);
+    action();
+  }
+
+  function getKeyClass(keyId, baseClass = "") {
+    const animationClass = animatedKey === keyId ? (baseClass.includes("equals") ? "key-spin" : "key-pop") : "";
+    return [baseClass, animationClass].filter(Boolean).join(" ");
   }
 
   function clearAll() {
@@ -213,6 +235,10 @@ function App() {
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   });
 
+  useEffect(() => {
+    return () => window.clearTimeout(animationTimeoutRef.current);
+  }, []);
+
   return (
     <main className={`app theme-${theme}`}>
       <section className="calculator-shell" aria-label="Fun calculator">
@@ -272,7 +298,13 @@ function App() {
           <>
             <div className="utility-grid">
               {utilityButtons.map((button) => (
-                <button key={button.action} type="button" title={button.title} onClick={() => useUtility(button.action)}>
+                <button
+                  key={button.action}
+                  type="button"
+                  className={getKeyClass(`utility-${button.action}`)}
+                  title={button.title}
+                  onClick={() => pressKey(`utility-${button.action}`, () => useUtility(button.action))}
+                >
                   {button.label}
                 </button>
               ))}
@@ -281,19 +313,29 @@ function App() {
             <div className="keypad">
               <div className="number-grid">
                 {numberKeys.map((key) => (
-                  <button key={key} type="button" className={key === "=" ? "equals" : ""} onClick={() => appendValue(key)}>
+                  <button
+                    key={key}
+                    type="button"
+                    className={getKeyClass(`number-${key}`, key === "=" ? "equals" : "")}
+                    onClick={() => pressKey(`number-${key}`, () => appendValue(key))}
+                  >
                     {key}
                   </button>
                 ))}
               </div>
               <div className="operator-grid">
                 {operatorKeys.map((key) => (
-                  <button key={key.label} type="button" onClick={() => appendValue(key.value)}>
+                  <button
+                    key={key.label}
+                    type="button"
+                    className={getKeyClass(`operator-${key.value}`)}
+                    onClick={() => pressKey(`operator-${key.value}`, () => appendValue(key.value))}
+                  >
                     {key.label}
                   </button>
                 ))}
-                <button type="button" className="danger" onClick={clearAll}>C</button>
-                <button type="button" onClick={backspace}>⌫</button>
+                <button type="button" className={getKeyClass("operator-clear", "danger")} onClick={() => pressKey("operator-clear", clearAll)}>C</button>
+                <button type="button" className={getKeyClass("operator-backspace")} onClick={() => pressKey("operator-backspace", backspace)}>⌫</button>
               </div>
             </div>
           </>
@@ -301,22 +343,22 @@ function App() {
           <section className="emoji-pad">
             <div className="emoji-examples">
               {exampleEmojiCombos.map((combo) => (
-                <button key={combo} type="button" onClick={() => setInput(combo)}>
+                <button key={combo} type="button" className={getKeyClass(`example-${combo}`)} onClick={() => pressKey(`example-${combo}`, () => setInput(combo))}>
                   {combo}
                 </button>
               ))}
             </div>
             <div className="emoji-grid">
               {emojiKeys.map((emoji) => (
-                <button key={emoji} type="button" onClick={() => appendValue(emoji)}>
+                <button key={emoji} type="button" className={getKeyClass(`emoji-${emoji}`)} onClick={() => pressKey(`emoji-${emoji}`, () => appendValue(emoji))}>
                   {emoji}
                 </button>
               ))}
-              <button type="button" onClick={() => appendValue("+")}>+ ✨</button>
-              <button type="button" onClick={() => appendValue("-")}>- 🧊</button>
-              <button type="button" className="equals" onClick={calculate}>=</button>
-              <button type="button" className="danger" onClick={clearAll}>C 🧼</button>
-              <button type="button" onClick={backspace}>⌫</button>
+              <button type="button" className={getKeyClass("emoji-plus")} onClick={() => pressKey("emoji-plus", () => appendValue("+"))}>+ ✨</button>
+              <button type="button" className={getKeyClass("emoji-minus")} onClick={() => pressKey("emoji-minus", () => appendValue("-"))}>- 🧊</button>
+              <button type="button" className={getKeyClass("emoji-equals", "equals")} onClick={() => pressKey("emoji-equals", calculate)}>=</button>
+              <button type="button" className={getKeyClass("emoji-clear", "danger")} onClick={() => pressKey("emoji-clear", clearAll)}>C 🧼</button>
+              <button type="button" className={getKeyClass("emoji-backspace")} onClick={() => pressKey("emoji-backspace", backspace)}>⌫</button>
             </div>
           </section>
         )}
