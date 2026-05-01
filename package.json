@@ -1,0 +1,26 @@
+{
+  "name": "fun-calculator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A compact desktop calculator with utility buttons and playful Emoji Math.",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on tcp:5173 && electron .\"",
+    "build": "vite build",
+    "start": "electron .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.4",
+    "concurrently": "^9.2.1",
+    "electron": "^38.2.1",
+    "vite": "^7.1.12",
+    "wait-on": "^8.0.4",
+    "vitest": "^3.2.4"
+  }
+}
