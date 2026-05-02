@@ -107,7 +107,9 @@ button {
 .theme-rainbow .number-grid button:nth-child(6n + 1),
 .theme-rainbow .operator-grid button:nth-child(6n + 1),
 .theme-rainbow .emoji-grid button:nth-child(6n + 1),
-.theme-rainbow .emoji-examples button:nth-child(6n + 1) {
+.theme-rainbow .emoji-examples button:nth-child(6n + 1),
+.theme-rainbow .word-grid button:nth-child(6n + 1),
+.theme-rainbow .word-examples button:nth-child(6n + 1) {
   background: linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%);
   color: #1d1014;
 }
@@ -116,7 +118,9 @@ button {
 .theme-rainbow .number-grid button:nth-child(6n + 2),
 .theme-rainbow .operator-grid button:nth-child(6n + 2),
 .theme-rainbow .emoji-grid button:nth-child(6n + 2),
-.theme-rainbow .emoji-examples button:nth-child(6n + 2) {
+.theme-rainbow .emoji-examples button:nth-child(6n + 2),
+.theme-rainbow .word-grid button:nth-child(6n + 2),
+.theme-rainbow .word-examples button:nth-child(6n + 2) {
   background: linear-gradient(135deg, #ffe66d 0%, #ff9f1c 100%);
   color: #24180b;
 }
@@ -125,7 +129,9 @@ button {
 .theme-rainbow .number-grid button:nth-child(6n + 3),
 .theme-rainbow .operator-grid button:nth-child(6n + 3),
 .theme-rainbow .emoji-grid button:nth-child(6n + 3),
-.theme-rainbow .emoji-examples button:nth-child(6n + 3) {
+.theme-rainbow .emoji-examples button:nth-child(6n + 3),
+.theme-rainbow .word-grid button:nth-child(6n + 3),
+.theme-rainbow .word-examples button:nth-child(6n + 3) {
   background: linear-gradient(135deg, #7bd88f 0%, #38ef7d 100%);
   color: #0f2114;
 }
@@ -134,7 +140,9 @@ button {
 .theme-rainbow .number-grid button:nth-child(6n + 4),
 .theme-rainbow .operator-grid button:nth-child(6n + 4),
 .theme-rainbow .emoji-grid button:nth-child(6n + 4),
-.theme-rainbow .emoji-examples button:nth-child(6n + 4) {
+.theme-rainbow .emoji-examples button:nth-child(6n + 4),
+.theme-rainbow .word-grid button:nth-child(6n + 4),
+.theme-rainbow .word-examples button:nth-child(6n + 4) {
   background: linear-gradient(135deg, #5bc0eb 0%, #45aaf2 100%);
   color: #0b1b22;
 }
@@ -143,7 +151,9 @@ button {
 .theme-rainbow .number-grid button:nth-child(6n + 5),
 .theme-rainbow .operator-grid button:nth-child(6n + 5),
 .theme-rainbow .emoji-grid button:nth-child(6n + 5),
-.theme-rainbow .emoji-examples button:nth-child(6n + 5) {
+.theme-rainbow .emoji-examples button:nth-child(6n + 5),
+.theme-rainbow .word-grid button:nth-child(6n + 5),
+.theme-rainbow .word-examples button:nth-child(6n + 5) {
   background: linear-gradient(135deg, #b892ff 0%, #7f7fd5 100%);
   color: #1b122c;
 }
@@ -152,7 +162,9 @@ button {
 .theme-rainbow .number-grid button:nth-child(6n),
 .theme-rainbow .operator-grid button:nth-child(6n),
 .theme-rainbow .emoji-grid button:nth-child(6n),
-.theme-rainbow .emoji-examples button:nth-child(6n) {
+.theme-rainbow .emoji-examples button:nth-child(6n),
+.theme-rainbow .word-grid button:nth-child(6n),
+.theme-rainbow .word-examples button:nth-child(6n) {
   background: linear-gradient(135deg, #ff9fce 0%, #f857a6 100%);
   color: #28111f;
 }
@@ -250,6 +262,7 @@ button {
 .keypad,
 .utility-grid,
 .emoji-pad,
+.word-pad,
 .mode-switch {
   margin-inline: 14px;
 }
@@ -315,7 +328,7 @@ h1 {
 
 .mode-switch {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   padding: 14px 0 10px;
 }
@@ -399,7 +412,9 @@ output {
 .number-grid,
 .operator-grid,
 .emoji-grid,
-.emoji-examples {
+.emoji-examples,
+.word-grid,
+.word-examples {
   display: grid;
   gap: 8px;
 }
@@ -412,11 +427,13 @@ output {
   grid-template-columns: repeat(2, 1fr);
 }
 
-.emoji-pad {
+.emoji-pad,
+.word-pad {
   padding: 12px 0 14px;
 }
 
-.emoji-examples {
+.emoji-examples,
+.word-examples {
   grid-template-columns: repeat(2, 1fr);
   margin-bottom: 10px;
 }
@@ -425,11 +442,17 @@ output {
   grid-template-columns: repeat(5, 1fr);
 }
 
+.word-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .utility-grid button,
 .number-grid button,
 .operator-grid button,
 .emoji-grid button,
-.emoji-examples button {
+.emoji-examples button,
+.word-grid button,
+.word-examples button {
   min-height: 48px;
   border-radius: 8px;
   background: var(--button-bg);
@@ -448,6 +471,13 @@ output {
 .emoji-grid button {
   min-height: 45px;
   font-size: 1.18rem;
+}
+
+.word-grid button,
+.word-examples button {
+  min-height: 46px;
+  font-size: 0.92rem;
+  font-weight: 800;
 }
 
 button:hover {

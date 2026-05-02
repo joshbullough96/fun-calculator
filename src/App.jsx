@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import emojiRules from "./data/emojiRules.json";
 import { evaluateEmojiExpression } from "./lib/emojiEvaluator";
 import { evaluateNumericExpression, formatNumber, wrapExpression } from "./lib/numericEvaluator";
+import { evaluateWordExpression } from "./lib/wordEvaluator";
 
 const numberKeys = ["7", "8", "9", "4", "5", "6", "1", "2", "3", "0", ".", "="];
 const operatorKeys = [
@@ -45,9 +46,13 @@ const emojiKeys = [
   "💡"
 ];
 const exampleEmojiCombos = ["🥸+🐶", "☕+💻", "🌧️+☂️", "🔥+💧"];
+const wordKeys = ["fire", "fly", "rain", "bow", "star", "fish", "moon", "light", "book", "mark", "sun", "flower"];
+const wordOperators = ["+", "-", "*"];
+const exampleWordCombos = ["fire+fly", "rain+bow", "starfish-fish", "ha*3"];
 const modeMessages = {
   calculator: "numbers are back on stage",
-  emoji: "emoji logic has entered the room"
+  emoji: "emoji logic has entered the room",
+  word: "letters are doing math now"
 };
 const initialMessage = "ready when you are";
 const themes = [
@@ -69,8 +74,8 @@ function App() {
   const [animatedKey, setAnimatedKey] = useState("");
   const animationTimeoutRef = useRef(null);
 
-  const displayPlaceholder = mode === "calculator" ? "2*(3+4)" : "🥸 + 🐶";
-  const modeLabel = mode === "calculator" ? "Calculator" : "Emoji Math";
+  const displayPlaceholder = mode === "calculator" ? "2*(3+4)" : mode === "emoji" ? "🥸 + 🐶" : "fire + fly";
+  const modeLabel = mode === "calculator" ? "Calculator" : mode === "emoji" ? "Emoji Math" : "Word Math";
 
   function appendValue(value) {
     if (value === "=") {
@@ -124,11 +129,16 @@ function App() {
         setResult(formatted);
         setMessage(getNumericMessage(value));
         addHistory({ mode, expression, result: formatted, message: getNumericMessage(value) });
-      } else {
+      } else if (mode === "emoji") {
         const emojiResult = evaluateEmojiExpression(expression, emojiRules);
         setResult(emojiResult.result);
         setMessage(emojiResult.message);
         addHistory({ mode, expression, result: emojiResult.result, message: emojiResult.message });
+      } else {
+        const wordResult = evaluateWordExpression(expression);
+        setResult(wordResult.result);
+        setMessage(wordResult.message);
+        addHistory({ mode, expression, result: wordResult.result, message: wordResult.message });
       }
 
       setPulseKey((key) => key + 1);
@@ -151,7 +161,7 @@ function App() {
 
   function useUtility(action) {
     if (mode !== "calculator") {
-      setMessage("utility buttons are off-duty in Emoji Math");
+      setMessage("utility buttons are off-duty in this mode");
       return;
     }
 
@@ -267,6 +277,9 @@ function App() {
           <button className={mode === "calculator" ? "active" : ""} type="button" onClick={() => switchMode("calculator")}>
             123
           </button>
+          <button className={mode === "word" ? "active" : ""} type="button" onClick={() => switchMode("word")}>
+            ABC
+          </button>
           <button className={mode === "emoji" ? "active" : ""} type="button" onClick={() => switchMode("emoji")}>
             🥸 + 🐶
           </button>
@@ -339,7 +352,7 @@ function App() {
               </div>
             </div>
           </>
-        ) : (
+        ) : mode === "emoji" ? (
           <section className="emoji-pad">
             <div className="emoji-examples">
               {exampleEmojiCombos.map((combo) => (
@@ -359,6 +372,31 @@ function App() {
               <button type="button" className={getKeyClass("emoji-equals", "equals")} onClick={() => pressKey("emoji-equals", calculate)}>=</button>
               <button type="button" className={getKeyClass("emoji-clear", "danger")} onClick={() => pressKey("emoji-clear", clearAll)}>C 🧼</button>
               <button type="button" className={getKeyClass("emoji-backspace")} onClick={() => pressKey("emoji-backspace", backspace)}>⌫</button>
+            </div>
+          </section>
+        ) : (
+          <section className="word-pad">
+            <div className="word-examples">
+              {exampleWordCombos.map((combo) => (
+                <button key={combo} type="button" className={getKeyClass(`word-example-${combo}`)} onClick={() => pressKey(`word-example-${combo}`, () => setInput(combo))}>
+                  {combo}
+                </button>
+              ))}
+            </div>
+            <div className="word-grid">
+              {wordKeys.map((word) => (
+                <button key={word} type="button" className={getKeyClass(`word-${word}`)} onClick={() => pressKey(`word-${word}`, () => appendValue(word))}>
+                  {word}
+                </button>
+              ))}
+              {wordOperators.map((operator) => (
+                <button key={operator} type="button" className={getKeyClass(`word-operator-${operator}`)} onClick={() => pressKey(`word-operator-${operator}`, () => appendValue(operator))}>
+                  {operator}
+                </button>
+              ))}
+              <button type="button" className={getKeyClass("word-equals", "equals")} onClick={() => pressKey("word-equals", calculate)}>=</button>
+              <button type="button" className={getKeyClass("word-clear", "danger")} onClick={() => pressKey("word-clear", clearAll)}>C</button>
+              <button type="button" className={getKeyClass("word-backspace")} onClick={() => pressKey("word-backspace", backspace)}>⌫</button>
             </div>
           </section>
         )}
@@ -383,7 +421,7 @@ function App() {
                   setMessage(item.message);
                 }}
               >
-                <span>{item.mode === "calculator" ? "calc" : "emoji"}</span>
+                <span>{item.mode === "calculator" ? "calc" : item.mode}</span>
                 <strong>{item.expression}</strong>
                 <em>{item.result}</em>
               </button>
